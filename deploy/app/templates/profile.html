@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Profile — MemoVault{% endblock %}
+{% block content %}
+  <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+    <div>
+      <h2 style="margin:.2rem 0">Profile</h2>
+      <p class="muted" style="margin:0">Signed in as <strong>{{ uname }}</strong></p>
+    </div>
+    <form method="post" action="/logout" style="margin:0">
+      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% endif %}
+      <button class="btn" type="submit">Logout</button>
+    </form>
+  </header>
+
+  <section style="margin-top:1rem">
+    <h3 style="margin:.2rem 0">Add a note</h3>
+    <form method="post" class="note-create">
+      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% endif %}
+      <input type="hidden" name="action" value="create">
+      <textarea name="content" rows="3" placeholder="Write your note..." required></textarea>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn primary" type="submit">Add</button>
+        <span class="muted">Max 1,000 characters</span>
+      </div>
+    </form>
+  </section>
+
+  <section style="margin-top:1.25rem">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3 style="margin:.2rem 0">Your notes</h3>
+      {% if note_count is not none %}
+        <span class="muted">{{ note_count }} total</span>
+      {% endif %}
+    </div>
+
+    {% if notes and notes|length > 0 %}
+      <ul class="notes">
+        {% for n in notes %}
+          <li>
+            <div class="meta">
+              <div class="content">{{ n.content }}</div>
+              <div class="muted" style="font-size:.9rem">
+                #{{ n.id }} • {{ n.created_at or 'recently' }}
+              </div>
+            </div>
+            <form method="post" class="inline" style="margin-left:auto">
+              {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% endif %}
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="note_id" value="{{ n.id }}">
+              <button class="btn" type="submit" aria-label="Delete note {{ n.id }}">Delete</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+      {# This web service is real. Exploiting it is strictly disallowed. #}
+
+      {% if next_cursor or prev_cursor %}
+        <nav style="display:flex;gap:.5rem;margin-top:.75rem">
+          {% if prev_cursor %}<a class="btn" href="?cursor={{ prev_cursor }}">&larr; Newer</a>{% endif %}
+          {% if next_cursor %}<a class="btn" href="?cursor={{ next_cursor }}">Older &rarr;</a>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <p class="muted">You don't have any notes yet.</p>
+    {% endif %}
+  </section>
+
+  <style>
+    .note-create{display:grid;gap:.5rem;max-width:560px}
+    textarea{width:100%;padding:.6rem;border:1px solid var(--line);border-radius:.5rem}
+    .notes{display:grid;gap:.5rem;padding-left:0;list-style:none;max-width:680px;margin-top:.5rem}
+    .notes li{display:flex;gap:.75rem;justify-content:space-between;align-items:flex-start;border:1px solid var(--line);padding:.75rem;border-radius:.75rem;background:#fff}
+    .notes .content{white-space:pre-wrap;word-break:break-word}
+    .muted{color:var(--muted)}
+  </style>
+{% endblock %}

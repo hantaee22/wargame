@@ -1,0 +1,6 @@
+flask
+jinja2
+werkzeug
+itsdangerous
+PyJWT==2.3
+cryptography

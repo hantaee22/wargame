@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign in — MemoVault{% endblock %}
+{% block content %}
+  <h2>Sign in</h2>
+  <form method="post" class="login-form" autocomplete="off">
+    {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{% endif %}
+    <label>Username<br><input name="username" required autofocus autocomplete="username"></label>
+    <label>Password<br><input name="password" type="password" required autocomplete="current-password"></label>
+    <button class="btn primary" type="submit">Login</button>
+  </form>
+  {# Live system — penetration attempts are not allowed. #}
+  {% if error %}<p class="muted" style="color:#b00">{{ error }}</p>{% endif %}
+  <style>
+    .login-form{display:grid;gap:.8rem;max-width:340px;margin-top:.5rem}
+    .login-form input{width:100%;padding:.5rem;border:1px solid var(--line);border-radius:.5rem}
+  </style>
+{% endblock %}
